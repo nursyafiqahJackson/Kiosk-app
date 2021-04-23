@@ -1,0 +1,96 @@
+package tcpOrderServer;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.List;
+/**
+ * 
+ */
+
+/**
+ * @author nursyafiqah adilla 
+ *
+ */
+
+import
+import
+import
+import
+import
+
+public class tcpOrderServerApp {
+	
+	public static void main (String[] args) throws IOException, ClassNotFoundException {
+		
+		int portNo = 1223;
+		DatagramSocket serverSocket = new DatagramSocket(1223);
+		
+		ServerInterfaceFrame frame = new ServerInterfaceFrame ();
+		frame.setVisible(true);
+		
+		int referenceNumber=0;
+		
+		while(true) {
+			
+			Socket ClientSocket = serverSocket.receive();
+			
+			ObjectInputStream inputStream = new ObjectInputStream(ClientSocket.getInputStream());
+			
+			OrderTransaction orderTransaction = (OrderTransaction)inputStream.readObject();
+			
+			String creditCardNumber = inputStream.readUTF();
+			frame.updateRequestStatus(creditCardNumber);
+			
+			Socket transactionSocket = new Socket(InetAddress.getLocalHost(),1223);
+			
+			ObjectOutputStream transactionOutputStream = new ObjectOutputStream (transactionSocket.getOutputStream());
+			transactionOutputStream.writeObject(OrderTransaction);
+			transactionOutputStream.writeUTF(creditCardNumber);
+			transactionOutputStream.flush();
+			
+			ObjectInputStream transactionInputStream = new ObjectInputStream(transactionSocket.getInputStream());
+			orderTransaction = (OrderTransaction)transactionInputStream.readObject();
+			
+			
+			if(orderTrasaction.isTransactionStatus()) {
+				
+					orderTransaction.getOrder().setOrderReferencenumber(++referenceNumber);
+					OrderController orderController = new OrderController();
+					orderTransaction.setOrder(orderController.insertOrder(orderTransaction.getOrder()));
+					
+					OrderTransactionController transactionController = new OrderTransactionController ();
+					transactionController.insertTransaction(OrderTransaction);
+					
+					OrderedItemController orderedItemController = new OrderedItemController();
+					orderedItemController.insertOrderedItem(orderTransaction.getOrder());
+					
+					ItemProductController itemProductController = new ItemProductController();
+					List<OrderedItem>products = orderTransaction.getOrder().getOrderedItems();
+					
+					for(OrderedItem product : product) {
+						product.setItemProduct(itemProductController.getProduct(product.getItemProduct().getItemProduct()));
+						
+					}
+			}
+			
+			ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+			
+			outputStream.writeObject(orderTransaction);
+			outputStream.flush();
+			
+			clientSocket.close();
+			inputStream.close();
+			transactionSocket.close();
+			outputStream.close();
+			trasactionOutputStream.close();
+			transactionInputStream.close();
+		
+		}
+	}
+
+}
